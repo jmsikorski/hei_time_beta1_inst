@@ -8,22 +8,18 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
-    On Error Resume Next
-    If Environ$("username") = "jsikorski" Then
-        ExportVBA "installer"
-    End If
-
+    ThisWorkbook.Save
 End Sub
 
 Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
     On Error Resume Next
     If Environ$("username") = "jsikorski" Then
-        ExportVBA "installer"
+        ExportVBA ThisWorkbook.Name
     End If
     On Error GoTo 0
     If Environ$("username") <> "jsikorski" Then
-        MsgBox "ERROR: File is read only", vbCritical + vbOKOnly, "READ ONLY!"
-        SaveAsUI = True
+        ThisWorkbook.Saved = True
+        Cancel = True
     End If
 End Sub
 

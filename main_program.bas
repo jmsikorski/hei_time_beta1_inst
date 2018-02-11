@@ -10,7 +10,7 @@ End Enum
 Public Enum fileType
     master = 1
     builder = 2
-    installer = 3
+    Installer = 3
 End Enum
 Public Sub showbook()
     ThisWorkbook.Worksheets("DATA").Visible = True
@@ -109,7 +109,7 @@ End Sub
 Public Function main_uninstall(Optional reinstall As Boolean) As Integer
     'On Error GoTo uninstall_err
     Stop
-    ans = MsgBox("Are you sure you want to uninstall " & Left(ThisWorkbook.name, Len(ThisWorkbook.name) - 5) & "?", vbExclamation + vbOKCancel, "CONFIRM UNINSTALL")
+    ans = MsgBox("Are you sure you want to uninstall " & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & "?", vbExclamation + vbOKCancel, "CONFIRM UNINSTALL")
     If ans <> vbOK Then
         Exit Function
     End If
@@ -171,7 +171,7 @@ uninstall_err:
 clean_up:
     Set ws = Nothing
     Set shl = Nothing
-    If FSO.FileExists(iPath & "Time Card Generator/" & ThisWorkbook.name) Then
+    If FSO.FileExists(iPath & "Time Card Generator/" & ThisWorkbook.Name) Then
         Set FSO = Nothing
         killThisFile
     End If
@@ -338,7 +338,7 @@ Public Sub main_run()
 '        End If
 '    End If
     On Error GoTo data_sht_not_found
-    If Worksheets(1).name <> dt Then
+    If Worksheets(1).Name <> dt Then
         ws.Move before:=ThisWorkbook.Worksheets(1)
     End If
     On Error GoTo 0
@@ -352,7 +352,7 @@ Public Sub main_run()
     Set wb = Workbooks(xlFile)
     ws.Range("appRunning") = True
     On Error GoTo file_not_open
-    If wb.name = xlFile Then
+    If wb.Name = xlFile Then
         Application.Run "'" & xlFile & "'" & "!Timecard.main"
         On Error GoTo 0
         Exit Sub
