@@ -1,6 +1,7 @@
 Attribute VB_Name = "main_program"
 Private Const pw = "hei3078"
 Private Const dt = "DATA"
+Private Const exeName = "TimeCardGen.xlsm"
 Public Enum mAns
     go = 3
     uninstall = 2
@@ -24,6 +25,13 @@ Public Sub main()
     Dim ans As Integer
     Dim retryAns As Integer
     Dim reinstall As Boolean
+    Dim testPath As String
+    testPath = Dir(ThisWorkbook.Worksheets(1).Range("aPath"), vbDirectory)
+    If testPath = "" Then
+        ThisWorkbook.Worksheets(1).Range("appinstalled") = False
+    Else
+        ThisWorkbook.Worksheets(1).Range("appinstalled") = True
+    End If
     reinstall = False
     ans = 0
     Set mMenu = New mainMenu
@@ -34,9 +42,16 @@ retry_line:
     ElseIf mMenu.ans = mAns.install Then
         ans = main_install
         If ans = 1 Then
-            Workbooks(ThisWorkbook.Worksheets(dt).Range("aFile").Value).Save
-            Workbooks(ThisWorkbook.Worksheets(dt).Range("aFile").Value).Close
-            MsgBox "Installation Complete!", vbOKOnly + vbInformation, "SUCCESS!"
+            MsgBox "Installed " & ThisWorkbook.Worksheets(dt).Range("aFile") & vbNewLine & "File is located in /Documents/Time Card Generator", vbOKOnly + vbInformation, "SUCCESS!"
+            Set mMenu = Nothing
+            If Application.Workbooks.count = 1 Then
+                Stop
+                Application.DisplayAlerts = False
+                ThisWorkbook.Saved = True
+                Application.Quit
+            Else
+                ThisWorkbook.Close False
+            End If
         ElseIf ans = 2 Then
             If Environ$("username") = "jsikorski" Then
                 reinstall = True
@@ -73,7 +88,7 @@ uninstall_line:
                     main_install
                 End If
             Else
-                MsgBox "Unable to install!", vbCritical + vbOKOnly, "ERROR"
+                MsgBox "Unable to uninstall!" & vbNewLine & vbNewLine & "Please close all files and try again", vbCritical + vbOKOnly, "ERROR"
             End If
         End If
     Else
@@ -81,35 +96,62 @@ uninstall_line:
             'ThisWorkbook.Close , False
         End If
     End If
-    Exit Sub
+    GoTo clean_up:
 clear_bad_install:
-    clearFolder (ws.Range("aPath"))
+    If clearFolder(ws.Range("aPath")) <> 1 Then
+        MsgBox "Error cleaning up improper installation", vbOKOnly, "ERROR"
+    End If
     RmDir ws.Range("aPath")
+clean_up:
+    Set mMenu = Nothing
 End Sub
 
 Public Function main_uninstall(Optional reinstall As Boolean) As Integer
     'On Error GoTo uninstall_err
+    Stop
+    ans = MsgBox("Are you sure you want to uninstall " & Left(ThisWorkbook.name, Len(ThisWorkbook.name) - 5) & "?", vbExclamation + vbOKCancel, "CONFIRM UNINSTALL")
+    If ans <> vbOK Then
+        Exit Function
+    End If
+
     Dim testPath As String
+    Dim FSO As FileSystemObject
+    Set FSO = New FileSystemObject
     Set ws = ThisWorkbook.Worksheets(dt)
     testPath = Dir(ws.Range("aPath"), vbDirectory)
+    Dim shl As WshShell
+    Dim iPath As String
+    Set shl = New WshShell
+    iPath = shl.SpecialFolders(16) ' "Documents" Folder
+    If Right(iPath, 1) <> "\" Then
+        iPath = iPath & "\"
+    End If
+    
     If testPath = "" Then
         main_uninstall = 2
         Exit Function
     End If
-    clearFolder (ws.Range("aPath"))
-    RmDir ws.Range("aPath")
+    If clearFolder(ws.Range("aPath")) <> 1 Then
+        main_uninstall = -1
+        GoTo clean_up
+    End If
+    FSO.DeleteFolder ws.Range("aPath")
+    If FSO.FolderExists(iPath & "Time Card Generator") Then
+        On Error GoTo uninstall_err
+        FSO.DeleteFolder iPath & "Time Card Generator"
+        On Error GoTo 0
+    End If
+
     ThisWorkbook.Worksheets(1).Range("reg_user") = vbNullString
     ThisWorkbook.Worksheets(1).Range("reg_password") = vbNullString
     If reinstall Then
         If main_install <> 1 Then
             MsgBox "Unable to install!", vbCritical + vbOKOnly, "ERROR"
         Else
-            ActiveWorkbook.Close False
             MsgBox "Installation Complete!", vbOKOnly + vbInformation, "SUCCESS!"
         End If
     End If
-    main_uninstall = 1
-    Exit Function
+    GoTo clean_up
 uninstall_err:
     If Environ$("username") = "jsikorski" Then
         Debug.Print "**UNINSTALL ERROR DETAILS**"
@@ -119,18 +161,38 @@ uninstall_err:
         Debug.Print "Last DLL Error: " & Err.LastDllError
         Debug.Print "Number: " & Err.Number
         Debug.Print "Source: " & Err.Source
-        Err.Raise Err.Number
+        'Err.Raise Err.Number
     End If
-    Err.Clear
     main_uninstall = -1
-    Exit Function
-clear_bad_install:
-    clearFolder (ws.Range("aPath"))
-    RmDir ws.Range("aPath")
-    main_uninstall = -1
+    If Err.Number <> 70 Then
+        Err.Clear
+        Exit Function
+    End If
+clean_up:
+    Set ws = Nothing
+    Set shl = Nothing
+    If FSO.FileExists(iPath & "Time Card Generator/" & ThisWorkbook.name) Then
+        Set FSO = Nothing
+        killThisFile
+    End If
+    Set FSO = Nothing
+    main_uninstall = 1
 End Function
 
-Public Function getXPass() As String
+Private Sub killThisFile()
+' Original code from Tom Urtis
+    Dim ans As Integer
+    With ThisWorkbook
+        
+        .Saved = True
+        .ChangeFileAccess xlReadOnly
+        Kill .FullName
+        Application.Quit
+
+    End With
+End Sub
+ 
+ Public Function getXPass() As String
     Dim xPass As String
     Dim tString As String
     tString = Environ$("username")
@@ -146,6 +208,15 @@ Public Function main_install() As Integer
     Dim ws As Worksheet
     Dim testPath As String
     Set ws = ThisWorkbook.Worksheets(dt)
+    Dim FSO As FileSystemObject
+    Set FSO = New FileSystemObject
+    Dim shl As WshShell
+    Dim iPath As String
+    Set shl = New WshShell
+    iPath = shl.SpecialFolders(16) ' "Documents" Folder
+    If Right(iPath, 1) <> "\" Then
+        iPath = iPath & "\"
+    End If
     testPath = Dir(ws.Range("aPath"), vbDirectory)
     If testPath <> "" Then
         main_install = 2
@@ -153,8 +224,8 @@ Public Function main_install() As Integer
     End If
     Set lMenu = New loginMenu
     Dim frm As Object
-    Do While ThisWorkbook.Worksheets(1).Range("reg_user") = vbNullString _
-        Or ThisWorkbook.Worksheets(1).Range("reg_password") = vbNullString
+    Do While ws.Range("reg_user") = vbNullString _
+        Or ws.Range("reg_password") = vbNullString
         Dim cnt As Integer
         cnt = 0
         For Each frm In VBA.UserForms
@@ -172,7 +243,18 @@ Public Function main_install() As Integer
     ExportVisualBasicCode.importDataFile
     Workbooks(ws.Range("aFile").Value).Worksheets("HOME").Range("reg_user").Value = ws.Range("reg_user").Value
     Workbooks(ws.Range("aFile").Value).Worksheets("HOME").Range("reg_pass").Value = ws.Range("reg_password").Value
+    ws.Range("reg_user").Clear
+    ws.Range("reg_password").Clear
+    ws.Range("appinstalled").Value = True
     Workbooks(ws.Range("aFile").Value).Protect getXPass
+    Workbooks(ThisWorkbook.Worksheets(dt).Range("aFile").Value).Save
+    Workbooks(ThisWorkbook.Worksheets(dt).Range("aFile").Value).Close
+    If FSO.FolderExists(iPath & "Time Card Generator") Then
+        ThisWorkbook.SaveAs iPath & "Time Card Generator\" & exeName
+    Else
+        FSO.CreateFolder iPath & "Time Card Generator"
+        ThisWorkbook.SaveAs iPath & "Time Card Generator\" & exeName
+    End If
     main_install = 1
     Exit Function
 install_err:
@@ -236,6 +318,7 @@ Public Sub main_run()
     Set ws = ThisWorkbook.Worksheets(dt)
     ws.Unprotect pw
     i = 0
+    Stop
     Application.WindowState = xlMaximized
 '    If ws.Range("apprunning") = False Then
 '        ans = MsgBox("Quit?", vbQuestion + vbYesNoCancel, "Helix Time Card Gen")

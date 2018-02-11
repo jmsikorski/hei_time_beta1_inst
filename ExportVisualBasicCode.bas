@@ -2,11 +2,21 @@ Attribute VB_Name = "ExportVisualBasicCode"
 ' Excel macro to export all VBA source code in this project to text files for proper source control versioning
 ' Requires enabling the Excel setting in Options/Trust Center/Trust Center Settings/Macro Settings/Trust access to the VBA project object model
 
-Public Sub ExportVBA()
-
-Const Module = 1
-Const ClassModule = 2
-Const Form = 3
+Public Sub callExportVBA()
+    ExportVBA "installer"
+End Sub
+Public Sub ExportVBA(Optional dirPath As String)
+    Dim ans As Integer
+    Dim mFile As String
+    If Environ$("username") <> "jsikorski!" Then
+    End If
+    ans = MsgBox("Export?", vbYesNo, ThisWorkbook.name)
+    If ans <> vbYes Then
+      Exit Sub
+    End If
+    Const Module = 1
+    Const ClassModule = 2
+    Const Form = 3
     Const Document = 100
     Const Padding = 24
 
@@ -18,10 +28,30 @@ Const Form = 3
     Dim FSO As New FileSystemObject
     Dim dirs() As String
     Dim directory As Variant
-    ReDim dirs(2)
-    dirs(0) = "C:\Users\jsikorski\Desktop\Time Card Project - JASON\ALL VBA CODE\" & ThisWorkbook.name & "_VBA_" & Format(Now(), "mm.dd.yy_hh.mm.ss")
-    dirs(1) = "C:\Users\jsikorski\Desktop\Time Card Project - JASON\hei_time\" & ThisWorkbook.name & "_VBA"
-    dirs(2) = "C:\Users\jsikorski\Desktop\Time Card Project\Installer"
+    If dirPath <> "" Then
+        ans = MsgBox("Publish?", vbYesNo, ThisWorkbook.name)
+        mFile = dirPath
+    Else
+        ans = vbNo
+    End If
+    If ans = vbYes Then
+        ReDim dirs(2)
+        dirs(2) = "C:\Users\jsikorski\Desktop\Time Card BETA\BETA 1\GitHub\"
+        If dirPath = "Generator" Then
+            mFile = "hei_time_beta1_gen"
+            dirs(2) = dirs(2) & mFile
+        ElseIf dirPath = "installer" Then
+            mFile = "hei_tim_beta1_inst"
+            dirs(2) = dirs(2) & mFile
+        Else
+            ReDim dirs(1)
+        End If
+        dirs(1) = "C:\Users\jsikorski\Desktop\Time Card BETA\BETA 1\Time Card Project\Code\" & dirPath
+    Else
+        ReDim dirs(0)
+    End If
+    dirs(0) = "C:\Users\jsikorski\Desktop\Time Card BETA\ALL VBA CODE\" & ThisWorkbook.name & "_VBA_" & Format(Now(), "mm.dd.yy_hh.mm.ss")
+    
     count = 0
 
     For Each directory In dirs
@@ -45,64 +75,134 @@ Const Form = 3
                 Case Else
                     extension = ".txt"
             End Select
-    
-    
+
+
             On Error Resume Next
             Err.Clear
-    
+
             path = directory & "\" & VBComponent.name & extension
             Call VBComponent.Export(path)
-    
+
             If Err.Number <> 0 Then
                 Call MsgBox("Failed to export " & VBComponent.name & " to " & path, vbCritical)
             Else
                 count = count + 1
                 Debug.Print "Exported " & Left$(VBComponent.name & ":" & space(Padding), Padding) & path
             End If
-    
+
             On Error GoTo 0
         Next
     Next
-    
+
     Application.StatusBar = "Successfully exported " & CStr(count) & " VBA files to " & dir_main
     Application.StatusBar = False
+    If ans = vbYes Then
+        Zip_All_Files_in_Folder Left(dirs(1), Len(dirs(1)) - Len(dirPath)), "C:\Users\jsikorski\Helix Electric Inc\TeslaTimeCard - Documents\Time Card Files\Data"
+    End If
 End Sub
 
-Public Sub clearFolder(xFolder As String)
+Public Sub Zip_All_Files_in_Folder(Optional FolderName As String, Optional DefPath)
+    Dim FileNameZip
+    Dim strDate As String
+    Dim oApp As Shell
+
+    If DefPath = vbNullString Then
+        DefPath = Application.DefaultFilePath
+    End If
+    If Right(DefPath, 1) <> "\" Then
+        DefPath = DefPath & "\"
+    End If
+
+    If FolderName = vbNullString Then
+        FolderName = "C:\Users\jsikorski\Desktop\Time Card Project"
+    End If
+
+    strDate = Format(Now, "mm.dd.yy.nnssAM")
+    FileNameZip = DefPath & "Time Card Project" & ".zip"
+
+    'Create empty Zip File
+    NewZip (FileNameZip)
+    Set oApp = New Shell
+    'Copy the files to the compressed folder
+    oApp.Namespace(FileNameZip).CopyHere oApp.Namespace(FolderName).Items
+
+    'Keep script waiting until Compressing is done
+    On Error Resume Next
+    Do Until oApp.Namespace(FileNameZip).Items.count = _
+       oApp.Namespace(FolderName).Items.count
+        Application.Wait (Now + TimeValue("0:00:01"))
+    Loop
+    On Error GoTo 0
+
+    Debug.Print "You find the zipfile here: " & FileNameZip
+End Sub
+
+Public Sub NewZip(sPath)
+'Create empty Zip File
+'Changed by keepITcool Dec-12-2005
+    If Len(Dir(sPath)) > 0 Then Kill sPath
+    Open sPath For Output As #1
+    Print #1, Chr$(80) & Chr$(75) & Chr$(5) & Chr$(6) & String(18, 0)
+    Close #1
+End Sub
+
+Public Function bIsBookOpen(ByRef szBookName As String) As Boolean
+' Rob Bovey
+    On Error Resume Next
+    bIsBookOpen = Not (Application.Workbooks(szBookName) Is Nothing)
+End Function
+
+
+Public Function Split97(sStr As Variant, sdelim As String) As Variant
+'Tom Ogilvy
+    Split97 = Evaluate("{""" & _
+                       Application.Substitute(sStr, sdelim, """,""") & """}")
+End Function
+
+Public Function clearFolder(xFolder As String) As Integer
     Dim FSO As New FileSystemObject
+    Set FSO = New FileSystemObject
+retry:
+    On Error GoTo close_file
     Dim xFile As file
     If Not FSO.FolderExists(xFolder) Then
         Call FSO.CreateFolder(xFolder)
-        Exit Sub
+        clearFolder = 1
+        GoTo clean_up
     End If
-    Set FSO = Nothing
     
     For Each xFile In FSO.GetFolder(xFolder).Files
-        On Error GoTo close_file
-        Kill xFile
+        xFile.Delete
     Next
-    Exit Sub
+    clearFolder = 1
+    GoTo clean_up
 close_file:
     Err.Clear
     Dim ans As Integer
-    ans = MsgBox("ERROR! Unable to remove files", vbAbortRetryIgnore + vbCritical, "ERROR!")
+    ans = MsgBox("Unable to remove " & xFile.name, vbAbortRetryIgnore + vbCritical, "ERROR!")
     If ans = vbRetry Then
-        clearFolder (xFolder)
+        Resume
     ElseIf ans = vbAbort Then
-        main
+        clearFolder = -2
     Else
-        ThisWorkbook.Close False
+        Resume Next
+'        MsgBox "Unable to recover, the file will now close", vbCritical & vbOKOnly, "CRITICAL ERROR!"
+'        Set FSO = Nothing
+'        ThisWorkbook.Close , False
     End If
-End Sub
+clean_up:
+    Set FSO = Nothing
+
+End Function
 
 Public Sub importDataFile()
     Dim FSO As FileSystemObject
-    Dim objShell As WshShell
     Set FSO = New FileSystemObject
     Dim xFolder As String
     Dim xFile As Object
+    Dim objShell As WshShell
     Set objShell = New WshShell
-    xFolder = objShell.SpecialFolders("Desktop") & "\Time Card Project\"
+    xFolder = ThisWorkbook.path
     
     For Each xFile In FSO.GetFolder(xFolder).Files
         If FSO.GetExtensionName(xFile.name) = "xlsx" Or FSO.GetExtensionName(xFile.name) = "xlsm" Then
@@ -124,7 +224,7 @@ Attribute rebuildFile.VB_ProcData.VB_Invoke_Func = "S\n14"
         Case 1 ' Rebuild Master File
             xlFile = ThisWorkbook.Worksheets(1).Range("aFile")
             xlFile = Left(xlFile, Len(xlFile) - 5) & templateName
-            cFolder = cFolder & "\Time Card Project\DEMO"
+            cFolder = ThisWorkbook.path & "\Generator"
         Case 2 ' Rebuild Builder File
 '            xlFile =
 '            cFolder = cFolder & "\Time Card Project\Builder"
@@ -136,7 +236,7 @@ Attribute rebuildFile.VB_ProcData.VB_Invoke_Func = "S\n14"
             Exit Sub
     End Select
     Application.EnableEvents = False
-    Workbooks.Open ThisWorkbook.Worksheets(1).Range("sp_Path") & xlFile
+    Workbooks.Open ThisWorkbook.path & "\" & xlFile
     Application.EnableEvents = True
     Workbooks(xlFile).Activate
     ImportModules cFolder
@@ -224,7 +324,7 @@ Public Sub ImportModules(Optional codeFolder As String)
     If codeFolder = "" Then
         Set objShell = New WshShell
         codeFolder = objShell.SpecialFolders("Desktop")
-        codeFolder = codeFolder & "\Time Card Project\"
+        codeFolder = codeFolder & "\Time Card Project\installer"
     End If
     
     If ActiveWorkbook.name = ThisWorkbook.name Then
@@ -291,8 +391,10 @@ Public Sub ImportModules(Optional codeFolder As String)
         
         ElseIf (objFSO.GetExtensionName(objFile.name) = "frm") Or _
             (objFSO.GetExtensionName(objFile.name) = "bas") Then
-            cmpComponents.Import objFile.path
             Debug.Print objFile.name
+            If objFile.name <> "main_module.bas" Then
+                cmpComponents.Import objFile.path
+            End If
         End If
         cnt = cnt + 1
     Next objFile

@@ -29,6 +29,7 @@ Attribute VB_Exposed = False
 
 
 
+
 Private Sub loginButton_Click()
     If userBox = vbNullString And pwBox = vbNullString Then
         MsgBox "Username & Password are required!", vbOKOnly + vbCritical, "ERROR!"
