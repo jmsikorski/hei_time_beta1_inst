@@ -318,6 +318,7 @@ Public Sub main_run()
     Set ws = ThisWorkbook.Worksheets(dt)
     ws.Unprotect pw
     i = 0
+    Stop
     Application.WindowState = xlMaximized
 '    If ws.Range("apprunning") = False Then
 '        ans = MsgBox("Quit?", vbQuestion + vbYesNoCancel, "Helix Time Card Gen")
