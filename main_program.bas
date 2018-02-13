@@ -17,6 +17,7 @@ Public Sub showbook()
     ThisWorkbook.Worksheets("BUILD").Visible = True
 
 End Sub
+
 Public Sub main()
     For i = 1 To ThisWorkbook.Sheets.count - 1
         ThisWorkbook.Worksheets(i).Visible = xlVeryHidden
@@ -26,7 +27,10 @@ Public Sub main()
     Dim retryAns As Integer
     Dim reinstall As Boolean
     Dim testPath As String
-    testPath = Dir(ThisWorkbook.Worksheets(1).Range("aPath"), vbDirectory)
+    Dim myPath As String
+    myPath = Environ$("appdata") & ThisWorkbook.Worksheets(1).Range("aPath")
+    ThisWorkbook.Worksheets(1).Range("aPath").Value = myPath
+    testPath = Dir(myPath, vbDirectory)
     If testPath = "" Then
         ThisWorkbook.Worksheets(1).Range("appinstalled") = False
     Else
@@ -317,7 +321,6 @@ Public Sub main_run()
     Set ws = ThisWorkbook.Worksheets(dt)
     ws.Unprotect pw
     i = 0
-    Stop
     Application.WindowState = xlMaximized
 '    If ws.Range("apprunning") = False Then
 '        ans = MsgBox("Quit?", vbQuestion + vbYesNoCancel, "Helix Time Card Gen")
