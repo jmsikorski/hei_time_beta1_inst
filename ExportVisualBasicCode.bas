@@ -122,7 +122,7 @@ Public Sub ExportVBA(Optional xlFile As String)
         'On Error Resume Next
         Dim commitMessage As String
         commitMessage = InputBox("Commit Message: ", "MESSAGE", Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5))
-        Application.Run VBA_IDE_main.gitCommit, commitMessage, dirs(3)
+        Application.Run "'VBA_IDE.xlsm'!gitCommit", commitMessage, dirs(3)
         On Error GoTo 0
         ans = MsgBox("Release?", vbYesNo, ThisWorkbook.Name)
         If ans = vbYes Then
