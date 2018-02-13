@@ -20,7 +20,7 @@ End Sub
 
 Public Sub main()
     For i = 1 To ThisWorkbook.Sheets.count - 1
-        ThisWorkbook.Worksheets(i).Visible = xlVeryHidden
+        'ThisWorkbook.Worksheets(i).Visible = xlVeryHidden
     Next
     Dim mMenu As mainMenu
     Dim ans As Integer
@@ -28,9 +28,11 @@ Public Sub main()
     Dim reinstall As Boolean
     Dim testPath As String
     Dim myPath As String
-    myPath = Environ$("appdata") & ThisWorkbook.Worksheets(1).Range("aPath")
-    ThisWorkbook.Worksheets(1).Range("aPath").Value = myPath
-    testPath = Dir(myPath, vbDirectory)
+    If Left(ThisWorkbook.Worksheets(1).Range("aPath"), 9) <> "C:\Users\" Then
+        myPath = Environ$("appdata")
+        ThisWorkbook.Worksheets(1).Range("aPath").Value = myPath & ThisWorkbook.Worksheets(1).Range("aPath").Value
+    End If
+    testPath = Dir(ThisWorkbook.Worksheets(1).Range("aPath"), vbDirectory)
     If testPath = "" Then
         ThisWorkbook.Worksheets(1).Range("appinstalled") = False
     Else
@@ -38,8 +40,8 @@ Public Sub main()
     End If
     reinstall = False
     ans = 0
-    Set mMenu = New mainMenu
 retry_line:
+    Set mMenu = New mainMenu
     mMenu.Show
     If mMenu.ans = mAns.go Then
         main_run
@@ -49,10 +51,10 @@ retry_line:
             MsgBox "Installed " & ThisWorkbook.Worksheets(dt).Range("aFile") & vbNewLine & "File is located in /Documents/Time Card Generator", vbOKOnly + vbInformation, "SUCCESS!"
             Set mMenu = Nothing
             If Application.Workbooks.count = 1 Then
-                Stop
                 Application.DisplayAlerts = False
                 ThisWorkbook.Saved = True
-                Application.Quit
+                Application.DisplayAlerts = True
+                GoTo retry_line
             Else
                 ThisWorkbook.Close False
             End If
@@ -347,7 +349,8 @@ Public Sub main_run()
     
     xlPath = ws.Range("aPath")
     If xlPath = vbNullString Then
-        xlPath = "C:\ProgramData\HelixTimeCard"
+        MsgBox "App not installed!", vbExclamation, "Oops!"
+        main_install
     End If
     xlFile = ws.Range("aFile")
     On Error Resume Next
