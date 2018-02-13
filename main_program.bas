@@ -20,7 +20,7 @@ End Sub
 
 Public Sub main()
     For i = 1 To ThisWorkbook.Sheets.count - 1
-        'ThisWorkbook.Worksheets(i).Visible = xlVeryHidden
+        ThisWorkbook.Worksheets(i).Visible = xlVeryHidden
     Next
     Dim mMenu As mainMenu
     Dim ans As Integer
