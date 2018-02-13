@@ -49,7 +49,8 @@ retry_line:
         ans = main_install
         If ans = 1 Then
             MsgBox "Installed " & ThisWorkbook.Worksheets(dt).Range("aFile") & vbNewLine & "File is located in /Documents/Time Card Generator", vbOKOnly + vbInformation, "SUCCESS!"
-            mMenu.Show
+            Unload mMenu
+            GoTo retry_line
         ElseIf ans = 2 Then
             If Environ$("username") = "jsikorski" Then
                 reinstall = True
