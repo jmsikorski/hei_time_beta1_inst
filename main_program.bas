@@ -140,7 +140,7 @@ Public Function main_uninstall(Optional reinstall As Boolean) As Integer
     End If
     Dim path() As String
     path = Split(ws.Range("aPath"), "\")
-    ws.Range("apath") = path(UBound(path))
+    ws.Range("apath") = "\" & path(UBound(path))
     ws.Range("reg_user") = vbNullString
     ws.Range("reg_password") = vbNullString
     If reinstall Then
