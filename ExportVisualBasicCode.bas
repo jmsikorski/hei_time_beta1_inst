@@ -119,10 +119,10 @@ Public Sub ExportVBA(Optional xlFile As String)
     Application.StatusBar = "Successfully exported " & CStr(count) & " VBA files to " & dir_main
     Application.StatusBar = False
     If ans = vbYes Then
-        On Error Resume Next
+        'On Error Resume Next
         Dim commitMessage As String
         commitMessage = InputBox("Commit Message: ", "MESSAGE", Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5))
-        VBA_IDE_main.gitCommit commitMessage, dirs(3)
+        Application.Run VBA_IDE_main.gitCommit, commitMessage, dirs(3)
         On Error GoTo 0
         ans = MsgBox("Release?", vbYesNo, ThisWorkbook.Name)
         If ans = vbYes Then
