@@ -73,9 +73,11 @@ Public Sub ExportVBA(Optional xlFile As String)
         End If
     Next
     Set FSO = Nothing
-
+    Dim cnt As Integer
     For Each directory In dirs
+        cnt = 0
         For Each VBComponent In ActiveWorkbook.VBProject.VBComponents
+            cnt = VBComponent.CodeModule.CountOfLines
             If directory = dirs(0) Then
                 Exit For
             End If
@@ -115,7 +117,7 @@ Public Sub ExportVBA(Optional xlFile As String)
             On Error GoTo 0
         Next
     Next
-
+    MsgBox cnt
     Application.StatusBar = "Successfully exported " & CStr(count) & " VBA files to " & dir_main
     Application.StatusBar = False
     If ans = vbYes Then
