@@ -14,7 +14,7 @@ End Sub
 Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
     On Error Resume Next
     If Environ$("username") = "jsikorski" Then
-        ExportVBA ThisWorkbook.name
+        ExportVBA ThisWorkbook.Name
     End If
     On Error GoTo 0
     If Environ$("username") <> "jsikorski" Then
