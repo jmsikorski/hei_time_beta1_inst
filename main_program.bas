@@ -17,7 +17,10 @@ Public Sub showbook()
     ThisWorkbook.Worksheets("BUILD").Visible = True
 
 End Sub
+Sub showTimeCardGen()
+Application.Visible = True
 
+End Sub
 Public Sub main()
     For i = 1 To ThisWorkbook.Sheets.count - 1
         ThisWorkbook.Worksheets(i).Visible = xlVeryHidden
@@ -107,7 +110,7 @@ End Sub
 
 Public Function main_uninstall(Optional reinstall As Boolean) As Integer
     'On Error GoTo uninstall_err
-    ans = MsgBox("Are you sure you want to uninstall " & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & "?", vbExclamation + vbOKCancel, "CONFIRM UNINSTALL")
+    ans = MsgBox("Are you sure you want to uninstall " & Left(ThisWorkbook.name, Len(ThisWorkbook.name) - 5) & "?", vbExclamation + vbOKCancel, "CONFIRM UNINSTALL")
     If ans <> vbOK Then
         Exit Function
     End If
@@ -133,7 +136,11 @@ Public Function main_uninstall(Optional reinstall As Boolean) As Integer
         main_uninstall = -1
         GoTo clean_up
     End If
-    FSO.DeleteFolder ws.Range("aPath")
+    Dim fol As Folder
+    For Each fol In FSO.GetFolder(ws.Range("aPath")).SubFolders
+        FSO.DeleteFolder fol, True
+    Next
+    FSO.DeleteFolder ws.Range("apath"), True
     If FSO.FolderExists(iPath & "Time Card Generator") Then
         On Error GoTo uninstall_err
         FSO.DeleteFolder iPath & "Time Card Generator"
@@ -171,7 +178,7 @@ uninstall_err:
 clean_up:
     Set ws = Nothing
     Set shl = Nothing
-    If FSO.FileExists(iPath & "Time Card Generator/" & ThisWorkbook.Name) Then
+    If FSO.FileExists(iPath & "Time Card Generator/" & ThisWorkbook.name) Then
         Set FSO = Nothing
         killThisFile
     End If
@@ -337,7 +344,7 @@ Public Sub main_run()
 '        End If
 '    End If
     On Error GoTo data_sht_not_found
-    If Worksheets(1).Name <> dt Then
+    If Worksheets(1).name <> dt Then
         ws.Move before:=ThisWorkbook.Worksheets(1)
     End If
     On Error GoTo 0
@@ -352,7 +359,7 @@ Public Sub main_run()
     Set wb = Workbooks(xlFile)
     ws.Range("appRunning") = True
     On Error GoTo file_not_open
-    If wb.Name = xlFile Then
+    If wb.name = xlFile Then
         Application.Run "'" & xlFile & "'" & "!Timecard.main"
         On Error GoTo 0
         Exit Sub

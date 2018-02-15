@@ -25,7 +25,7 @@ Public Function openCheck(ByRef xlFile As Variant, ByRef xlPath As String) As In
 retry:
     ChDir ThisWorkbook.path
     strFileToOpen = Application.GetOpenFilename _
-    (Title:=xlFile & " Not found", _
+    (title:=xlFile & " Not found", _
     filefilter:="Excel Files *.xls* (*.xls*),", _
     MultiSelect:=False)
     If strFileToOpen = False Then
