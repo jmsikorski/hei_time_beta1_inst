@@ -269,6 +269,7 @@ Attribute rebuildFile.VB_ProcData.VB_Invoke_Func = "S\n14"
             Debug.Print "ERROR REBUILDING FILE"
             Exit Sub
     End Select
+
     Application.EnableEvents = False
     Workbooks.Open ThisWorkbook.path & "\" & xlFile
     Application.EnableEvents = True
@@ -280,6 +281,8 @@ Attribute rebuildFile.VB_ProcData.VB_Invoke_Func = "S\n14"
     Application.DisplayAlerts = False
     Dim newFile As String
     newFile = ThisWorkbook.Worksheets(1).Range("aPath") & "\" & ThisWorkbook.Worksheets(1).Range("aFile")
+    ActiveWorkbook.Worksheets("HOME").Range("reg_user").Value = ThisWorkbook.Worksheets(1).Range("reg_user").Value
+    ActiveWorkbook.Worksheets("HOME").Range("reg_pass").Value = ThisWorkbook.Worksheets(1).Range("reg_password").Value
     ActiveWorkbook.SaveAs newFile
     Application.DisplayAlerts = True
 

@@ -248,8 +248,6 @@ Public Function main_install() As Integer
     makeLnkPath ws.Range("sp_path")
     rebuildFile (fileType.master)
     ExportVisualBasicCode.importDataFile
-    Workbooks(ws.Range("aFile").Value).Worksheets("HOME").Range("reg_user").Value = ws.Range("reg_user").Value
-    Workbooks(ws.Range("aFile").Value).Worksheets("HOME").Range("reg_pass").Value = ws.Range("reg_password").Value
     ws.Range("reg_user").Clear
     ws.Range("reg_password").Clear
     ws.Range("appinstalled").Value = True
