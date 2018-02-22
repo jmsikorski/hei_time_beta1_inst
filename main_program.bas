@@ -255,6 +255,7 @@ Public Function main_install() As Integer
     ws.Range("appinstalled").Value = True
     Workbooks(ws.Range("aFile").Value).Protect getXPass
     Workbooks(ThisWorkbook.Worksheets(dt).Range("aFile").Value).Save
+    ThisWorkbook.Worksheets(dt).Range("aPath").Value = "\HelixElectric"
     Workbooks(ThisWorkbook.Worksheets(dt).Range("aFile").Value).Close
     If FSO.FolderExists(iPath & "Time Card Generator") Then
         ThisWorkbook.SaveAs iPath & "Time Card Generator\" & exeName
