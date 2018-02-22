@@ -22,6 +22,7 @@ Application.Visible = True
 
 End Sub
 Public Sub main()
+    ThisWorkbook.Unprotect "3078hei-Admin504"
     For i = 1 To ThisWorkbook.Sheets.count - 1
         ThisWorkbook.Worksheets(i).Visible = xlVeryHidden
     Next
@@ -107,6 +108,7 @@ clear_bad_install:
     RmDir ws.Range("aPath")
 clean_up:
     Set mMenu = Nothing
+    ThisWorkbook.Protect "3078hei-Admin504"
 End Sub
 
 Public Function main_uninstall(Optional reinstall As Boolean) As Integer
