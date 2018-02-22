@@ -31,9 +31,9 @@ Public Sub main()
     Dim reinstall As Boolean
     Dim testPath As String
     Dim myPath As String
-    If Left(ThisWorkbook.Worksheets(1).Range("aPath"), 9) <> "C:\Users\" Then
+    If Left(ThisWorkbook.Worksheets(1).Range("aPath"), 9) = "C:\Users\" Then
         myPath = Environ$("appdata")
-        ThisWorkbook.Worksheets(1).Range("aPath").Value = myPath & ThisWorkbook.Worksheets(1).Range("aPath").Value
+        ThisWorkbook.Worksheets(1).Range("aPath").Value = "HelixTimeCard"
     End If
     testPath = Dir(ThisWorkbook.Worksheets(1).Range("aPath"), vbDirectory)
     If testPath = "" Then
