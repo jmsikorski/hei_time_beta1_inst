@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
-    ThisWorkbook.Save
+    Application.Visible = True
 End Sub
 
 Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
@@ -18,8 +18,10 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
     End If
     On Error GoTo 0
     If Environ$("username") <> "jsikorski" Then
-        ThisWorkbook.Saved = True
-        Cancel = True
+        If Left(ThisWorkbook.Name, 8) <> "Launcher" Then
+            ThisWorkbook.Saved = True
+            Cancel = True
+        End If
     End If
 End Sub
 
