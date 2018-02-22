@@ -32,8 +32,8 @@ Public Sub main()
     Dim testPath As String
     Dim myPath As String
     If Left(ThisWorkbook.Worksheets(1).Range("aPath"), 9) = "C:\Users\" Then
-        myPath = Environ$("appdata")
-        ThisWorkbook.Worksheets(1).Range("aPath").Value = "HelixTimeCard"
+        myPath = Environ$("appdata") & "\HelixTimeCard"
+        ThisWorkbook.Worksheets(1).Range("aPath").Value = myPath
     End If
     testPath = Dir(ThisWorkbook.Worksheets(1).Range("aPath"), vbDirectory)
     If testPath = "" Then
