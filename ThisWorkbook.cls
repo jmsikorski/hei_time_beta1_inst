@@ -24,7 +24,7 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
         End If
     End If
     If Left(ThisWorkbook.Name, 8) = "Launcher" Then
-        ThisWorkbook.Worksheets(dt).Range("aPath").Value = "\HelixElectric"
+        ThisWorkbook.Worksheets("DATA").Range("aPath").Value = "\HelixTimeCard"
     End If
 End Sub
 
