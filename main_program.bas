@@ -89,14 +89,13 @@ uninstall_line:
                 ElseIf retryAns = vbYes Then
                     main_install
                 End If
+            ElseIf ans = 3 Then
             Else
                 MsgBox "Unable to uninstall!" & vbNewLine & vbNewLine & "Please close all files and try again", vbCritical + vbOKOnly, "ERROR"
             End If
         End If
     Else
-        If Environ$("username") <> "jsikorski" Then
-            'ThisWorkbook.Close , False
-        End If
+        main_run
     End If
     GoTo clean_up:
 clear_bad_install:
@@ -112,6 +111,7 @@ Public Function main_uninstall(Optional reinstall As Boolean) As Integer
     'On Error GoTo uninstall_err
     ans = MsgBox("Are you sure you want to uninstall " & Left(ThisWorkbook.Name, Len(ThisWorkbook.Name) - 5) & "?", vbExclamation + vbOKCancel, "CONFIRM UNINSTALL")
     If ans <> vbOK Then
+        main_uninstall = 3
         Exit Function
     End If
 
