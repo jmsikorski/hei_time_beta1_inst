@@ -141,11 +141,6 @@ Public Function main_uninstall(Optional reinstall As Boolean) As Integer
         FSO.DeleteFolder fol, True
     Next
     FSO.DeleteFolder ws.Range("apath"), True
-    If FSO.FolderExists(iPath & "Time Card Generator") Then
-        On Error GoTo uninstall_err
-        FSO.DeleteFolder iPath & "Time Card Generator"
-        On Error GoTo 0
-    End If
     Dim path() As String
     path = Split(ws.Range("aPath"), "\")
     ws.Range("apath") = "\" & path(UBound(path))
@@ -157,6 +152,11 @@ Public Function main_uninstall(Optional reinstall As Boolean) As Integer
         Else
             MsgBox "Installation Complete!", vbOKOnly + vbInformation, "SUCCESS!"
         End If
+    End If
+    If FSO.FolderExists(iPath & "Time Card Generator") Then
+        On Error GoTo uninstall_err
+        FSO.DeleteFolder iPath & "Time Card Generator"
+        On Error GoTo 0
     End If
     GoTo clean_up
 uninstall_err:
@@ -179,6 +179,8 @@ clean_up:
     Set ws = Nothing
     Set shl = Nothing
     If FSO.FileExists(iPath & "Time Card Generator/" & ThisWorkbook.Name) Then
+        ThisWorkbook.SaveAs Environ$("appdata") & "tmp.xlsm"
+        FSO.DeleteFolder iPath & "Time Card Generator"
         Set FSO = Nothing
         killThisFile
     End If
