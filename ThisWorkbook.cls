@@ -17,12 +17,7 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
         ExportVBA ThisWorkbook.Name
     End If
     On Error GoTo 0
-    If Environ$("username") <> "jsikorski" Then
-        If Left(ThisWorkbook.Name, 8) <> "Launcher" Then
-            ThisWorkbook.Saved = True
-            Cancel = True
-        End If
-    End If
+    ThisWorkbook.Protect "3078hei-Admin504"
 End Sub
 
 Private Sub Workbook_Open()

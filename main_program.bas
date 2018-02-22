@@ -95,7 +95,9 @@ uninstall_line:
             End If
         End If
     Else
-        main_run
+        If reinstall Then
+            main_run
+        End If
     End If
     GoTo clean_up:
 clear_bad_install:
