@@ -23,6 +23,9 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
             Cancel = True
         End If
     End If
+    If Left(ThisWorkbook.Name, 8) = "Launcher" Then
+        ThisWorkbook.Worksheets(dt).Range("aPath").Value = "\HelixElectric"
+    End If
 End Sub
 
 Private Sub Workbook_Open()
