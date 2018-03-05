@@ -12,6 +12,7 @@ Public Enum fileType
     builder = 2
     Installer = 3
 End Enum
+Public save As Boolean
 Public Sub showbook()
     ThisWorkbook.Worksheets("DATA").Visible = True
     ThisWorkbook.Worksheets("BUILD").Visible = True
@@ -22,7 +23,7 @@ Application.Visible = True
 
 End Sub
 Public Sub main()
-    ThisWorkbook.Unprotect "3078hei-Admin504"
+    save = False
     For i = 1 To ThisWorkbook.Sheets.count - 1
         ThisWorkbook.Worksheets(i).Visible = xlVeryHidden
     Next
@@ -32,10 +33,8 @@ Public Sub main()
     Dim reinstall As Boolean
     Dim testPath As String
     Dim myPath As String
-    If Left(ThisWorkbook.Worksheets(1).Range("aPath"), 9) = "C:\Users\" Then
-        myPath = Environ$("appdata") & "\HelixTimeCard"
-        ThisWorkbook.Worksheets(1).Range("aPath").Value = myPath
-    End If
+    myPath = Environ$("appdata") & "\HelixTimeCard"
+    ThisWorkbook.Worksheets(1).Range("aPath").Value = myPath
     testPath = Dir(ThisWorkbook.Worksheets(1).Range("aPath"), vbDirectory)
     If testPath = "" Then
         ThisWorkbook.Worksheets(1).Range("appinstalled") = False
@@ -258,7 +257,9 @@ Public Function main_install() As Integer
     ws.Range("reg_password").Clear
     ws.Range("appinstalled").Value = True
     Workbooks(ws.Range("aFile").Value).Protect getXPass
-    Workbooks(ThisWorkbook.Worksheets(dt).Range("aFile").Value).Save
+    save = True
+    Workbooks(ThisWorkbook.Worksheets(dt).Range("aFile").Value).save
+    save = False
     Workbooks(ThisWorkbook.Worksheets(dt).Range("aFile").Value).Close
     If FSO.FolderExists(iPath & "Time Card Generator") Then
         ThisWorkbook.SaveAs iPath & "Time Card Generator\" & exeName
@@ -291,7 +292,7 @@ Public Function makeLnkPath(ByVal lnk As String) As Integer
     Set oURLlink = WshShell.CreateShortcut(ThisWorkbook.Worksheets(dt).Range("aPath") & "\Data.URL")
     With oURLlink
         .TargetPath = lnk
-        .Save
+        .save
         makeLnkPath = 1
         Exit Function
    End With

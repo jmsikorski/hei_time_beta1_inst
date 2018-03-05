@@ -15,9 +15,13 @@ Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
     On Error Resume Next
     If Environ$("username") = "jsikorski" Then
         ExportVBA ThisWorkbook.Name
+        main_program.save = True
+    End If
+    If Not main_program.save Then
+        ThisWorkbook.Saved = True
+        Cancel = True
     End If
     On Error GoTo 0
-    ThisWorkbook.Protect "3078hei-Admin504"
 End Sub
 
 Private Sub Workbook_Open()

@@ -283,7 +283,9 @@ Attribute rebuildFile.VB_ProcData.VB_Invoke_Func = "S\n14"
     newFile = ThisWorkbook.Worksheets(1).Range("aPath") & "\" & ThisWorkbook.Worksheets(1).Range("aFile")
     ActiveWorkbook.Worksheets("HOME").Range("reg_user").Value = ThisWorkbook.Worksheets(1).Range("reg_user").Value
     ActiveWorkbook.Worksheets("HOME").Range("reg_pass").Value = ThisWorkbook.Worksheets(1).Range("reg_password").Value
+    save = True
     ActiveWorkbook.SaveAs newFile
+    save = False
     Application.DisplayAlerts = True
 
 End Sub
